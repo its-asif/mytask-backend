@@ -39,7 +39,7 @@ router.get('/email/:email', async (req, res) =>{
 // get task by user with paigination 
 router.get('/email/:email/page/:page', async (req, res) =>{
     const { email, page } = req.params;
-    const limit = 3;
+    const limit = parseInt(req.body.limit) || 6;
     const skip = (page - 1) * limit;
     
     const total = await taskCollection.find({ userEmail: email }).count();
