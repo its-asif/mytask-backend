@@ -36,6 +36,31 @@ router.get('/email/:email', async (req, res) =>{
     }
 })
 
+// get task by user with paigination 
+router.get('/email/:email/page/:page', async (req, res) =>{
+    const { email, page } = req.params;
+    const limit = 3;
+    const skip = (page - 1) * limit;
+    
+    const total = await taskCollection.find({ userEmail: email }).count();
+    const totalPages = Math.ceil(total / limit);
+    try{
+        const taskData = await taskCollection.find({
+            userEmail : email
+        }).skip(skip).limit(limit).toArray();
+        res.json({
+            taskData,
+            page,
+            limit,
+            totalPages
+        });
+        
+    } catch (error) {
+        console.error("Error getting single task data:", error);
+        res.status(500).json({ error: "There was a server error" });
+    }
+})
+
 // get task by id
 router.get('/:id', async (req, res) =>{
     
@@ -55,7 +80,7 @@ router.get('/:id', async (req, res) =>{
 // personalized data -> by email
 
 // get tasks by tags
-// http://localhost:3000/api/tasks/email/john@example.com?tags=backend,web
+// ex: http://localhost:3000/api/tasks/email/john@example.com?tags=backend,web
 router.get('/email/:email/tags', async (req, res) => {
     const { email } = req.params;
     const { tags } = req.query;
